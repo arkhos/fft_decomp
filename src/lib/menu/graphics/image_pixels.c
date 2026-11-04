@@ -11,7 +11,11 @@
  * count, so callers must provide a positive byte count. */
 void mem_copy_bytes_nonempty(void* destination, const void* source, s32 count) {
     /* Pin: unpinned, GCC copies the byte through $v0 instead of $a3. */
+#ifdef FFT_PORT
+    u8 value;
+#else
     register u8 value __asm__("$7");
+#endif
     u8* destination_bytes = destination;
     const u8* source_bytes = source;
 
@@ -20,9 +24,16 @@ void mem_copy_bytes_nonempty(void* destination, const void* source, s32 count) {
     do {
         value = *source_bytes;
         *destination_bytes = value;
+#ifdef FFT_PORT
+        /* addi traps on signed overflow, which these pointer and count steps never reach. */
+        destination_bytes++;
+        source_bytes++;
+        count--;
+#else
         __asm__ volatile("addi %0,%0,1" : "=r"(destination_bytes) : "0"(destination_bytes));
         __asm__ volatile("addi %0,%0,1" : "=r"(source_bytes) : "0"(source_bytes));
         __asm__ volatile("addi %0,%0,-1" : "=r"(count) : "0"(count));
+#endif
     } while (count);
 }
 

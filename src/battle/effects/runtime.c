@@ -199,8 +199,14 @@ void effect_render_frame_start(void) {
 static void* primitive_alloc(primitive_kind_e primitive_type) {
     /* These registers retain the arena offset and primitive size across the wrap test. */
     s32 offset;
+#ifdef FFT_PORT
+    /* Register pins exist only for byte matching. */
+    s32 size;
+    s32 size_byte_offset;
+#else
     register s32 size __asm__("$4");
     register s32 size_byte_offset __asm__("$2");
+#endif
     s32 remaining;
 
     offset = s_effect_prim_buffer_offset;

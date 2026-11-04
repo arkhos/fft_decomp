@@ -44,6 +44,7 @@ func conditionalProblems(path string, data []byte, knownMacros map[string]bool, 
 			program := strings.HasPrefix(name, moduleMacroPrefix)
 			variant := strings.HasPrefix(name, definePrefix)
 			switch {
+			case name == portMacro:
 			case definedHere[name] && !program && !variant:
 			case header && variant:
 				problems = append(problems, fmt.Sprintf("%s:%d tests %s; headers may not test VARIANT_ names (every module includes them)", path, number+1, name))

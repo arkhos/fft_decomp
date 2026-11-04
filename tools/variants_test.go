@@ -119,7 +119,7 @@ func TestModuleMacrosAndConditionalRules(t *testing.T) {
 		t.Fatalf("macros = %v", macros)
 	}
 	known := map[string]bool{"FFT_BATTLE": true, "FFT_WORLD": true}
-	source := "#ifdef FFT_BATTLE\nint a;\n#elif defined(FFT_WORLD) || VARIANT_X > 1\nint b;\n#else\nint c;\n#endif\n#if DEBUG\n#endif\n#ifdef FFT_NOWHERE\n#endif\n"
+	source := "#ifdef FFT_BATTLE\nint a;\n#elif defined(FFT_WORLD) || VARIANT_X > 1\nint b;\n#else\nint c;\n#endif\n#if DEBUG\n#endif\n#ifdef FFT_NOWHERE\n#endif\n#ifdef FFT_PORT\n#else\n#endif\n"
 	problems := conditionalProblems("src/x.c", []byte(source), known, false)
 	if len(problems) != 2 || !strings.Contains(problems[0], "tests DEBUG") || !strings.Contains(problems[1], "FFT_NOWHERE, which names no module") {
 		t.Fatalf("source problems = %v", problems)

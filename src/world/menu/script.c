@@ -790,7 +790,11 @@ menu_instruction_t* menu_opcode_17_draw_right_aligned_number(menu_instruction_t*
 void screen_sliding_cursor_draw(point16_t* pos, u16* state, s32 mode) {
     RECT rect;
     /* Pin required: unpinned, the roles held in $s2/$s3/$s4 rotate. */
+#ifdef FFT_PORT
+    s32 active; /* register pin exists only for byte matching */
+#else
     register s32 active __asm__("$20");
+#endif
     u32 state_mode;
     s32 alternate;
     s32 timer;

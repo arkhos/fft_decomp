@@ -102,6 +102,11 @@ const definePrefix = "VARIANT_"
 // FFT_EVENT_BUNIT, FFT_EFFECT_E000.
 const moduleMacroPrefix = "FFT_"
 
+// portMacro guards the fft3ds port's changes (#ifdef FFT_PORT / #else /
+// #endif). No module defines it, so every program view keeps the original
+// #else branch and the bytes still match.
+const portMacro = "FFT_PORT"
+
 // moduleMacro names the program macro of a module id or family.
 func moduleMacro(id string) string {
 	return moduleMacroPrefix + strings.ToUpper(strings.ReplaceAll(id, "-", "_"))

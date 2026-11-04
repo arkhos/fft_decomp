@@ -419,7 +419,11 @@ void unit_raw_stats_generate(unit_stats_t* unit) {
 /* Roll the five little-endian 24-bit raw stats for the selected unit type. */
 static void base_stats_generate(unit_raw_stat_t raw_stats[UNIT_RAW_STAT_COUNT], unit_generation_type_e unit_type) {
     /* Without the pin, type_index, index and base rotate among $s2/$s3/$s4. */
+#ifdef FFT_PORT
+    s32 type_index = unit_type; /* register pin exists only for byte matching */
+#else
     register s32 type_index __asm__("$20") = unit_type;
+#endif
     s32 index = 0;
     u8(*variance)[UNIT_RAW_STAT_COUNT] = g_unit_generation_raw_stat_variance;
     unit_generation_base_data_t* table = g_unit_generation_base_data;

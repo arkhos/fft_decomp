@@ -14,6 +14,19 @@ const u8* text_entry_skip(const u8* text, s32 entry_index) {
     const u8* cursor = text;
     s32 index = entry_index;
 
+#ifdef FFT_PORT
+    /* The MIPS sequence below assembles in reorder mode, so its delay slots are
+     * nops: count the 0xFE/0xFF terminators from text until index of them have
+     * passed, and return the byte after the last one. */
+    s32 terminators = 0;
+    while (terminators != index) {
+        if ((*cursor & 0xFE) == 0xFE) {
+            terminators++;
+        }
+        cursor++;
+    }
+    result = cursor;
+#else
     __asm__("addi $9,$0,0\n"
             "addi $10,$0,0xfe\n"
             "1:\n"
@@ -30,5 +43,6 @@ const u8* text_entry_skip(const u8* text, s32 entry_index) {
         : "=r"(result), "=r"(cursor)
         : "1"(cursor), "r"(index)
         : "$8", "$9", "$10");
+#endif
     return result;
 }

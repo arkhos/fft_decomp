@@ -3,6 +3,36 @@
 #include "fft/thread.h"
 #include "psx/types.h"
 
+#ifdef FFT_PORT
+/* C equivalents of the assembled accessors. thread_t is 1024 bytes
+ * (fft/thread.h), so `sll 10` + `add[u]` is plain indexing of g_threads. */
+
+/* ARM has no $gp: port/runtime threads do not save or restore it. */
+void* thread_current_global_pointer_get(void) {
+    return 0;
+}
+
+s32 thread_current_parameter_1_get(void) {
+    return g_threads[g_thread_current_id].function_parameter_1;
+}
+
+s32 thread_current_parameter_2_get(void) {
+    return g_threads[g_thread_current_id].function_parameter_2;
+}
+
+s32 thread_current_parameter_3_get(void) {
+    return g_threads[g_thread_current_id].function_parameter_3;
+}
+
+/* Slot 0 has no wraparound: it reads the record before g_threads, as the PS1 does. */
+s32 thread_is_previous_running(void) {
+    return g_threads[g_thread_current_id - 1].is_running;
+}
+
+s32 thread_is_running_asm(s32 thread_id) {
+    return g_threads[thread_id].is_running;
+}
+#else
 /* Capture $gp for a new native thread's saved context. */
 void* thread_current_global_pointer_get(void) {
     void* global_pointer;
@@ -84,3 +114,4 @@ s32 thread_is_running_asm(s32 thread_id) {
     __asm__("nop\n" THREAD_ADD_RECORD " %0,%1,%2" : "=r"(thread) : "0"(thread_offset), "r"(threads));
     return thread->is_running;
 }
+#endif
