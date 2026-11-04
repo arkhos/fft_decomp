@@ -2,8 +2,12 @@
 
 /* LIBGPU, retail 0x80025e5c-0x800260b0. VRAM transfer in 16-bit units, with a CPU remainder and 64-byte DMA blocks. */
 int _dws(RECT* rect, u32* data) {
+#ifdef FFT_PORT
+    /* The header's declaration applies: GCC rejects the volatile redeclaration. */
+#else
     extern volatile psyq_gpu_environment_t g_psyq_gpu_environment; /* An unqualified RAM view removes native 16-bit
                                                                       normalization in the bounds clamps. */
+#endif
     int size;
     int blocks;
     int special; /* The zero selector retains a native branch and an extra saved register. */

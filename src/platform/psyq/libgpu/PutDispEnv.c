@@ -2,8 +2,12 @@
 #include "psx/libgpu.h"
 
 DISPENV* PutDispEnv(DISPENV* env) {
+#ifdef FFT_PORT
+    /* The header's declaration applies: GCC rejects the volatile redeclaration. */
+#else
     extern volatile psyq_gpu_environment_t g_psyq_gpu_environment; /* An unqualified RAM view folds the native 16-bit
                                                                       address and conversion sequences. */
+#endif
     int h_start;
     int v_start;
     int h_end;

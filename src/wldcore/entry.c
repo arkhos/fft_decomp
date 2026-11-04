@@ -27,6 +27,9 @@
 #include "psx/libgte.h"
 #include "psx/pad.h"
 #include "psx/types.h"
+#ifdef FFT_PORT
+#include "port/guest_ram.h" /* PSX_PTR: literal PS1 addresses (ADR 0004) */
+#endif
 
 extern u16* g_location_script_default_base;
 
@@ -333,7 +336,11 @@ static void map_state_init(void) {
     s32 day;
     s32 i;
 
+#ifdef FFT_PORT
+    g_world_map_scratch_buffer = (u32*)PSX_PTR(0x801d0000);
+#else
     g_world_map_scratch_buffer = (u32*)0x801d0000;
+#endif
     g_message_block_loaded = -1;
     g_picture_loaded_set = -1;
     g_menu_stack_ot_offset = 1;

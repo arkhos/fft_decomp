@@ -2,8 +2,12 @@
 
 /* LIBGPU, retail 0x80025524-0x800257c8. Builds environment and optional background commands. */
 void SetDrawEnv(DR_ENV* dr_env, DRAWENV* env) {
+#ifdef FFT_PORT
+    /* The header's declaration applies: GCC rejects the volatile redeclaration. */
+#else
     extern volatile psyq_gpu_environment_t g_psyq_gpu_environment; /* An unqualified RAM view removes native 16-bit
                                                                       normalization in the bounds clamps. */
+#endif
     /* Component packing replaces the retail 32-bit GPU loads with 16-bit loads. */
     RECT rectangle;
     int index;

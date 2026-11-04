@@ -16,6 +16,9 @@
 #include "psx/libgpu.h"
 #include "psx/libgte.h"
 #include "psx/types.h"
+#ifdef FFT_PORT
+#include "port/guest_ram.h" /* PSX_PTR: literal PS1 addresses (ADR 0004) */
+#endif
 
 /* Draw/display environments rebuilt for title and ending screen modes. */
 gfx_screen_environment_t g_gfx_screen_environments[2] = { 0 };
@@ -189,9 +192,17 @@ void gfx_init_screen_environments(s32 clear_first) {
 static void system_init_runtime_state(void) {
     g_system_runtime_flags
         = SYSTEM_RUNTIME_FLAG_RUNNING | SYSTEM_RUNTIME_FLAG_DISPLAY_BLANKED | SYSTEM_RUNTIME_FLAG_WIDE_SCREEN;
+#ifdef FFT_PORT
+    g_file_destination = (u8*)PSX_PTR(0x801d0000);
+#else
     g_file_destination = (u8*)0x801d0000;
+#endif
     g_file_current_openbk_image_id = -1;
+#ifdef FFT_PORT
+    g_gfx_opntex_data = (u32*)PSX_PTR(0x80140000);
+#else
     g_gfx_opntex_data = (u32*)0x80140000;
+#endif
     g_gfx_overlay_fade.abr = 2;
     g_gfx_overlay_fade.ot_index = 2;
     g_input_previous_buttons = 0;

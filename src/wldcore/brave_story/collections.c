@@ -21,6 +21,9 @@
 #include "psx/libgs.h"
 #include "psx/pad.h"
 #include "psx/types.h"
+#ifdef FFT_PORT
+#include "port/guest_ram.h" /* PSX_PTR: literal PS1 addresses (ADR 0004) */
+#endif
 
 extern u8 g_treasure_sound_novel_ids[];
 
@@ -586,7 +589,11 @@ void brave_story_treasure_level_update(menu_stack_record_t* level) {
 }
 
 /* Free RAM above WLDCORE's data that the dissolve upload stages its image in. */
+#ifdef FFT_PORT
+#define DISSOLVE_STAGING_BUFFER ((u8*)PSX_PTR(0x801EE000))
+#else
 #define DISSOLVE_STAGING_BUFFER ((u8*)0x801EE000)
+#endif
 
 /*
  * Streams an image into VRAM through the 0x801EE000 staging buffer in 1 KiB
