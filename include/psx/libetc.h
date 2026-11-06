@@ -10,7 +10,14 @@
 #define MODE_PAL  1
 
 /* Scratchpad offsets count 32-bit elements. */
+#ifdef FFT_PORT
+/* The port's scratchpad is an ordinary 1 KiB array (port/runtime/guest_ram.c): the
+ * PS1 address 0x1f800000 is not mapped on the port's targets. */
+extern u8 rt_guest_scratchpad[];
+#    define getScratchAddr(word_index) ((u32*)rt_guest_scratchpad + (word_index))
+#else
 #define getScratchAddr(word_index) ((u32*)0x1f800000 + (word_index))
+#endif
 
 enum { PSX_SCRATCHPAD_BYTE_COUNT = 1024 };
 

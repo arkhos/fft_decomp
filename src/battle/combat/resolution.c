@@ -460,7 +460,12 @@ void action_store_used_weapon(action_command_t* action) {
 /* g_action_work bound a second time. Spelling every field through one
  * symbol lets GCC share a base register between the two access groups below,
  * which changes this function's code. */
+#ifdef FFT_PORT
+/* The port has one storage for both spellings: the original's second binding is g_action_work. */
+#    define s_action_work_view g_action_work
+#else
 static action_work_t s_action_work_view;
+#endif
 
 /* Calculate one target's action result: load the current ability, weapon and
  * item data for the attacker/target pair, run the evasion reactions and the

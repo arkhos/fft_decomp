@@ -24,9 +24,16 @@ extern crystal_pickup_result_t g_crystal_pickup_result;
  * instead merges that load with the returned record address. */
 static move_found_item_t s_selected_item = { 0 };
 
+#ifdef FFT_PORT
+extern u8 g_move_find_result_flags;
+/* The record and its first-byte flags alias share one address in the original;
+ * the port keeps both on the arena storage the game links to. */
+#    define s_tile_pickup_result (*(move_find_result_data_t*)&g_move_find_result_flags)
+#else
 static move_find_result_data_t s_tile_pickup_result = { 0 };
 
 extern u8 g_move_find_result_flags;
+#endif
 
 static s32 item_flag_test_or_set(s32 map_id, s32 tile_index, s32 save);
 

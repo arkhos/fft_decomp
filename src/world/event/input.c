@@ -16,12 +16,24 @@
 
 /* frame input state */
 extern menu_input_state_t g_screen_input_frame_state;
+#ifdef FFT_PORT
+/* The scalars below share their addresses with g_screen_input_frame_state's fields,
+ * which script_load_event_input_state publishes. Separate native statics would
+ * leave that state at zero, so the port names the fields. */
+#    define s_screen_input_frame_new                    (g_screen_input_frame_state.new_buttons)
+#    define s_screen_input_frame_current                (g_screen_input_frame_state.current_buttons)
+#    define s_screen_input_frame_previous               (g_screen_input_frame_state.previous_buttons)
+#    define s_screen_input_frame_initial_repeat_counter (g_screen_input_frame_state.initial_repeat_counter)
+#    define s_screen_input_frame_repeat_counter         (g_screen_input_frame_state.repeat_counter)
+#    define s_screen_input_frame_secondary_repeat_counter (g_screen_input_frame_state.secondary_repeat_counter)
+#else
 static u32 s_screen_input_frame_new;
 static u32 s_screen_input_frame_current;
 static u32 s_screen_input_frame_previous;
 static u32 s_screen_input_frame_initial_repeat_counter;
 static u32 s_screen_input_frame_repeat_counter;
 static u32 s_screen_input_frame_secondary_repeat_counter;
+#endif
 
 /* Per-frame event input update: derives the edge/auto-repeat 32-bit input mask,
  * publishes it, and yields once while tracking thread status changes. A new

@@ -44,7 +44,12 @@ static void location_script_opcode_28_check_ramza_faith_at_most(void);
 /* Scalar view of g_location_script_state.flags for the opcode handlers that
  * read-modify-write it: the member spelling there shares one base register
  * with the args/data accesses instead of the target's absolute addresses. */
+#ifdef FFT_PORT
+/* One storage for both spellings in the port. */
+#    define s_location_script_flags (g_location_script_state.flags)
+#else
 static s32 s_location_script_flags;
+#endif
 
 static void operand_pair_read(s32* out1, s32* out2);
 static void operand_dates_read(s32* out_month, s32* out_day, s32* out_current_month, s32* out_current_day);
