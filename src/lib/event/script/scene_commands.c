@@ -28,6 +28,9 @@
 #include "psx/libc.h"
 #include "psx/libgte.h"
 #include "psx/types.h"
+#ifdef FFT_PORT
+#include "port/guest_ram.h" /* PSX_PTR: literal PS1 addresses (ADR 0004) */
+#endif
 
 static s32 s_script_loaded_event_id = -1;
 
@@ -1351,10 +1354,25 @@ void status_current_graphics_queue(s32 battle_id, s32 change_type) {
 /* Resets every unit slot's status staging state and inflict-status mode to none. */
 void unit_status_staging_clear(void) {
     s32 i;
+#ifdef FFT_PORT
+    /* script_execute_event calls this before unit_status_staging_update has set
+     * the pointer: on the PS1 the null record's fields are kernel RAM
+     * (0x8000039c onwards), as for the null reads QUIRKS.md lists ("reads ...
+     * through NULL (kernel RAM)"). The port writes the arena's copy of kernel
+     * RAM instead of the unmapped native page 0 (ADR 0004;
+     * docs/QUIRKS_STATUS.md). */
+    unit_status_staging_t* data =
+        g_unit_status_staging_data ? g_unit_status_staging_data : (unit_status_staging_t*)PSX_PTR(0x80000000);
+    for (i = 0; i < UNIT_SLOT_COUNT; i++) {
+        data->state[i] = UNIT_STATUS_STAGING_NONE;
+        data->inflict_status_mode[i] = UNIT_INFLICT_STATUS_MODE_NONE;
+    }
+#else
     for (i = 0; i < UNIT_SLOT_COUNT; i++) {
         g_unit_status_staging_data->state[i] = UNIT_STATUS_STAGING_NONE;
         g_unit_status_staging_data->inflict_status_mode[i] = UNIT_INFLICT_STATUS_MODE_NONE;
     }
+#endif
 }
 
 /* Snapshot a unit into the event staging record and queue its status removal.
