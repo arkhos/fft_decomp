@@ -1495,6 +1495,18 @@ static void unit_wep_eff_update(unit_runtime_t* unit_data) {
     }
 }
 
+#ifdef FFT_PORT
+/* Widescreen enhancement of the port (fft3ds ADR 0010): the drawn width grows
+ * by g_wide_margin pixels on each side (0 when it is off), so units and their
+ * bubbles are kept that much farther out. */
+extern int g_wide_margin;
+#define UNIT_SCREEN_X_MIN (0x61 - g_wide_margin)
+#define UNIT_SCREEN_X_MAX (0x19f + g_wide_margin)
+#else
+#define UNIT_SCREEN_X_MIN 0x61
+#define UNIT_SCREEN_X_MAX 0x19f
+#endif
+
 /* Draws the unit's status bubble when the unit is on screen and has one.
  *
  * Nothing is drawn unless the camera-relative position lies within x 0x61..0x19f
@@ -1507,7 +1519,7 @@ static void bubble_display_update(unit_runtime_t* unit) {
     /* The camera-relative position is read unsigned (lhu) here. */
     screen_coords.vx = unit->camera_relative_x;
     screen_coords.vy = unit->camera_relative_y;
-    if (screen_coords.vx < 0x61 || screen_coords.vx > 0x19f) {
+    if (screen_coords.vx < UNIT_SCREEN_X_MIN || screen_coords.vx > UNIT_SCREEN_X_MAX) {
         return;
     }
     if (screen_coords.vy < -0x1f || screen_coords.vy > 0x10f) {
@@ -1568,7 +1580,7 @@ static void unit_layers_draw(unit_runtime_t* unit) {
     if (unit->numeric_display.active) {
         result_text_animate(unit, &position);
     }
-    if (!((position.vx >= 0x61 && position.vx <= 0x19f) && (position.vy >= -0x1f && position.vy <= 0x10f))
+    if (!((position.vx >= UNIT_SCREEN_X_MIN && position.vx <= UNIT_SCREEN_X_MAX) && (position.vy >= -0x1f && position.vy <= 0x10f))
         && unit->spritesheet_id != SPRITE_SHEET_ID_ALTIMA_SECOND_FORM) {
         return;
     }
