@@ -25,6 +25,10 @@ typedef char cursor_tile_position_size_must_be_12[sizeof(cursor_tile_position_t)
 static u32 s_cursor_repeat_counter;
 
 static cursor_tile_position_t s_cursor_previous_tile = { 0 };
+#ifdef FFT_PORT
+/* port/enhancements/bottom_screen/minimap.c: 1 and the tile when one was tapped. */
+s32 rt_touch_cursor_target(s32* x, s32* y, s32* layer);
+#endif
 
 /* Map the directional buttons to a map direction (battle facing, diagonals included) for the
  * camera's yaw quadrant and the cursor input mode. source picks held, newly pressed (repeating at
@@ -526,6 +530,22 @@ s32 cursor_move_by_input(void) {
 
     direction = 0;
     current = battle_map_tile_get_pointer(g_cursor_x, g_cursor_y, g_cursor_layer);
+#ifdef FFT_PORT
+    /* Touch minimap (port, docs/adr/0012): a tapped tile takes this frame's pad
+     * step, with the sound and unit panel of an ordinary move. */
+    {
+        s32 touch_x, touch_y, touch_layer;
+        if (rt_touch_cursor_target(&touch_x, &touch_y, &touch_layer)) {
+            s_cursor_previous_tile.x = g_cursor_x;
+            s_cursor_previous_tile.layer = g_cursor_layer;
+            s_cursor_previous_tile.y = g_cursor_y;
+            g_cursor_x = touch_x;
+            g_cursor_y = touch_y;
+            g_cursor_layer = touch_layer;
+            goto cursor_moved;
+        }
+    }
+#endif
     if (g_game_options.fields.multi_height_cursor_speed == GAME_MULTI_HEIGHT_CURSOR_SPEED_STOP) {
         if (g_input_pressed_buttons & PSX_PAD_START) {
             other_level = battle_map_tile_get_pointer(g_cursor_x, g_cursor_y, g_cursor_layer ^ 1);
@@ -648,6 +668,9 @@ s32 cursor_move_by_input(void) {
         }
     }
 
+#ifdef FFT_PORT
+cursor_moved:
+#endif
     if (((g_cursor_x != s_cursor_previous_tile.x) | (g_cursor_layer != s_cursor_previous_tile.layer)
             | (g_cursor_y != s_cursor_previous_tile.y))
         != 0) {
